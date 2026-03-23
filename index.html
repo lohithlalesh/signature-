@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simplify Suite - Signature Generator V3 (Mobile & Dark Mode Optimized)</title>
+    <title>Simplify Suite - Signature Generator V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script>
@@ -37,6 +37,8 @@
         .input-field:focus {
             outline: none;
             border-color: #5B2FE6;
+            ring: 2px;
+            ring-color: #5B2FE6;
         }
         label {
             font-size: 0.75rem;
@@ -57,29 +59,29 @@
         <div class="lg:col-span-4 space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
             <div>
                 <h1 class="text-2xl font-black text-deep">Simplify<span class="text-lime">.</span></h1>
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Dark Mode Optimized Sig</p>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Official Employee Signature</p>
             </div>
 
             <div class="space-y-5">
                 <div>
                     <label>Full Name</label>
-                    <input type="text" id="name" class="input-field" value="Evarest Roofthooft" oninput="updateSignature()">
+                    <input type="text" id="name" class="input-field" placeholder="Evarest Roofthooft" value="Evarest Roofthooft" oninput="updateSignature()">
                 </div>
                 <div>
                     <label>Job Title</label>
-                    <input type="text" id="role" class="input-field" value="Co-Founder & CEO" oninput="updateSignature()">
+                    <input type="text" id="role" class="input-field" placeholder="Co-Founder & CEO" value="Co-Founder & CEO" oninput="updateSignature()">
                 </div>
                 <div>
                     <label>Email Address</label>
-                    <input type="email" id="email" class="input-field" value="evarest@simplify.io" oninput="updateSignature()">
+                    <input type="email" id="email" class="input-field" placeholder="evarest@simplify.io" value="evarest@simplify.io" oninput="updateSignature()">
                 </div>
                 <div>
                     <label>Phone Number</label>
-                    <input type="text" id="phone" class="input-field" value="+1 234 567 8901" oninput="updateSignature()">
+                    <input type="text" id="phone" class="input-field" placeholder="+1 234 567 8901" value="+1 234 567 8901" oninput="updateSignature()">
                 </div>
                 <div>
                     <label>Website URL</label>
-                    <input type="text" id="website" class="input-field" value="simplifysuite.io" oninput="updateSignature()">
+                    <input type="text" id="website" class="input-field" placeholder="simplifysuite.io" value="simplifysuite.io" oninput="updateSignature()">
                 </div>
             </div>
 
@@ -90,7 +92,7 @@
                     </svg>
                     Copy Signature
                 </button>
-                <div id="toast" class="text-center mt-3 text-lime font-bold text-sm opacity-0 transition-opacity">Copied!</div>
+                <div id="toast" class="text-center mt-3 text-lime font-bold text-sm opacity-0 transition-opacity">Copied to clipboard!</div>
             </div>
         </div>
 
@@ -101,8 +103,8 @@
                 <span class="text-[10px] font-black text-gray-300 uppercase tracking-[2px]">600px Width Standard</span>
             </div>
             
-            <div class="bg-gray-200 border border-dashed border-gray-300 rounded-2xl p-6 md:p-12 flex items-center justify-center min-h-[400px] shadow-inner relative overflow-hidden">
-                <div id="signature-preview" class="shadow-2xl">
+            <div class="bg-white border border-dashed border-gray-300 rounded-2xl p-12 flex items-center justify-center min-h-[400px] shadow-inner relative overflow-hidden">
+                <div id="signature-preview" class="shadow-xl bg-white">
                     <!-- Signature Table will be injected here -->
                 </div>
             </div>
@@ -119,14 +121,14 @@
 
     <script>
         function updateSignature() {
-            const name = document.getElementById('name').value || 'Name';
-            const role = document.getElementById('role').value || 'Title';
-            const email = document.getElementById('email').value || 'name@simplify.io';
+            const name = document.getElementById('name').value || 'Evarest Roofthooft';
+            const role = document.getElementById('role').value || 'Co-Founder & CEO';
+            const email = document.getElementById('email').value || 'evarest@simplify.io';
             const phone = document.getElementById('phone').value || '+1 234 567 8901';
             const website = document.getElementById('website').value || 'simplifysuite.io';
 
             const signatureHTML = `
-<table cellpadding="0" cellspacing="0" border="0" style="width: 600px; font-family: Arial, Helvetica, sans-serif; border-collapse: collapse; background-color: #1A0A2E;">
+<table cellpadding="0" cellspacing="0" border="0" style="width: 600px; font-family: Arial, Helvetica, sans-serif; border: 1px solid #e8e8e8; border-collapse: collapse; background-color: #ffffff;">
     <tbody>
         <!-- Gradient Top Border -->
         <tr>
@@ -135,43 +137,43 @@
         
         <!-- Main Content Area -->
         <tr>
-            <td style="padding: 0; background: #1A0A2E;">
+            <td style="padding: 0; background: #ffffff;">
                 <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
                     <tbody>
                         <tr>
-                            <!-- Official Logo -->
-                            <td style="padding: 24px 0 24px 24px; border-right: 1px solid rgba(255,255,255,0.08); width: 170px; vertical-align: middle; text-align: center;">
-                                <img src="https://simplifysuite.io/images/simplify-logo.webp" alt="Simplify" width="130" style="display: block; margin: 0 auto; width: 130px; height: auto;">
+                            <!-- Official Logo Cell -->
+                            <td style="padding: 18px 0 18px 22px; border-right: 1px solid #eeeeee; width: 160px; vertical-align: middle; text-align: center;">
+                                <img src="simplify-logo.png" alt="Simplify" width="120" style="display: block; margin: 0 auto; width: 120px; height: auto;">
                             </td>
                             
-                            <!-- Info Cell -->
-                            <td style="padding: 24px 24px; vertical-align: middle;">
+                            <!-- Information Cell -->
+                            <td style="padding: 18px 22px; vertical-align: middle;">
                                 <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
                                     <tbody>
                                         <tr>
-                                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; padding-bottom: 2px; line-height: 1.2;">${name}</td>
+                                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: 700; color: #1A0A2E; padding-bottom: 3px; line-height: 1.1;">${name}</td>
                                         </tr>
                                         <tr>
-                                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; color: #6BC910; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 12px;">${role}</td>
+                                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; color: #5B2FE6; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 10px;">${role}</td>
                                         </tr>
                                         <tr>
-                                            <td height="1" style="background: rgba(255,255,255,0.1); font-size: 0; line-height: 0; padding-bottom: 12px;">&nbsp;</td>
+                                            <td height="1" style="background: #f2f2f2; font-size: 0; line-height: 0; padding-bottom: 10px;">&nbsp;</td>
                                         </tr>
                                         <tr>
-                                            <td style="padding-bottom: 10px;">
-                                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #A8A2B5; margin-right: 14px; white-space: nowrap;">
-                                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #6BC910; vertical-align: middle; margin-right: 6px;"></span>${email}
+                                            <td style="padding-bottom: 8px;">
+                                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #888888; margin-right: 14px; white-space: nowrap;">
+                                                    <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #6BC910; vertical-align: middle; margin-right: 5px;"></span>${email}
                                                 </span>
-                                                <a href="https://${website}" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #ffffff; text-decoration: none; margin-right: 14px; white-space: nowrap;">
-                                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #6BC910; vertical-align: middle; margin-right: 6px;"></span>${website}
+                                                <a href="https://${website}" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #5B2FE6; text-decoration: none; margin-right: 14px; white-space: nowrap;">
+                                                    <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #6BC910; vertical-align: middle; margin-right: 5px;"></span>${website}
                                                 </a>
-                                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #A8A2B5; white-space: nowrap;">
-                                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #6BC910; vertical-align: middle; margin-right: 6px;"></span>${phone}
+                                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #888888; white-space: nowrap;">
+                                                    <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #6BC910; vertical-align: middle; margin-right: 5px;"></span>${phone}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: rgba(255,255,255,0.4);">The all-in-one platform for your small business.</td>
+                                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #bbbbbb; letter-spacing: 0.5px;">The all-in-one business management platform for small teams.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -182,17 +184,18 @@
             </td>
         </tr>
         
-        <!-- Fixed Footer Area (Single Cell for Mobile Stability) -->
+        <!-- Updated Footer Area -->
         <tr>
-            <td style="background: rgba(0,0,0,0.2); padding: 12px 24px; text-align: left;">
+            <td style="background: #1A0A2E; padding: 11px 22px;">
                 <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
-                    <tr>
-                        <td style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; line-height: 1;">
-                            LESS SOFTWARE, MORE BUSINESS 
-                            <span style="color: rgba(255,255,255,0.1); margin: 0 10px;">|</span>
-                            <a href="https://${website}" style="color: #6BC910; text-decoration: none; font-weight: 700; letter-spacing: 1.2px;">${website.toUpperCase()}</a>
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;">Less software, more business</td>
+                            <td style="text-align: right;">
+                                <a href="https://${website}" style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; color: #6BC910; text-decoration: none; letter-spacing: 1px;">${website}</a>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </td>
         </tr>
@@ -205,20 +208,25 @@
 
         function copySignature() {
             const previewDiv = document.getElementById('signature-preview');
+            
             const selection = window.getSelection();
             const range = document.createRange();
             range.selectNodeContents(previewDiv);
             selection.removeAllRanges();
             selection.addRange(range);
+
             try {
                 document.execCommand('copy');
                 const toast = document.getElementById('toast');
                 toast.style.opacity = '1';
                 setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
             selection.removeAllRanges();
         }
 
+        // Init
         updateSignature();
     </script>
 </body>
