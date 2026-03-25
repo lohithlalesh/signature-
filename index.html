@@ -1,230 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="color-scheme" content="light dark">
-    <meta name="supported-color-schemes" content="light dark">
-    <title>Simplify Suite - Signature Generator Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { deep: '#1A0A2E', lime: '#6BC910', purple_brand: '#5B2FE6' },
-                    fontFamily: { montserrat: ['Montserrat', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #f3f4f6; -webkit-font-smoothing: antialiased; transition: background-color 0.3s; }
-        .dark-mode-ui { background-color: #0f172a !important; color: white !important; }
-        .input-field { width: 100%; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 12px; font-size: 16px; font-family: 'Montserrat', sans-serif; transition: all 0.2s; background: white; color: #1A0A2E; }
-        .input-field:focus { outline: none; border-color: #5B2FE6; box-shadow: 0 0 0 4px rgba(91, 47, 230, 0.1); }
-        label { font-size: 10px; font-weight: 800; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: block; }
-        
-        #preview-canvas.dark-preview { background-color: #111827 !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simplify — Signature Generator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+body { font-family: 'Montserrat', sans-serif; }
+
+.input-focus:focus {
+    border-color: #6332f1;
+    box-shadow: 0 0 0 2px rgba(99, 50, 241, 0.1);
+}
+</style>
 </head>
-<body class="font-montserrat p-4 md:p-10" id="body-wrapper">
 
-    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        <!-- Controls -->
-        <div id="controls-panel" class="lg:col-span-4 space-y-6 bg-white p-8 rounded-3xl shadow-sm border border-gray-200 transition-colors">
-            <header class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-2xl font-black italic">Simplify<span class="text-lime">.</span></h1>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Premium Signature Tool</p>
-                </div>
-                <button onclick="toggleDarkModeUI()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                </button>
-            </header>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-6">
 
-            <div class="space-y-4">
-                <div><label>Full Name</label><input type="text" id="name" class="input-field" value="Evarest Roofthooft" oninput="update()"></div>
-                <div><label>Job Title</label><input type="text" id="role" class="input-field" value="Co-Founder & CEO" oninput="update()"></div>
-                <div><label>Email</label><input type="email" id="email" class="input-field" value="evarest@simplify.io" oninput="update()"></div>
-                <div><label>Phone</label><input type="text" id="phone" class="input-field" value="+1 234 567 8901" oninput="update()"></div>
-            </div>
+<div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
 
-            <button onclick="copySignature()" id="copyBtn" class="w-full bg-deep text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-purple-900/20">
-                <span>COPY SIGNATURE</span>
-            </button>
-            <div id="toast" class="text-center text-lime font-bold text-xs opacity-0 transition-opacity">Copied to Clipboard!</div>
-        </div>
+<!-- INPUT PANEL -->
+<div class="bg-white p-6 rounded-xl border space-y-4">
 
-        <!-- Preview -->
-        <div class="lg:col-span-8 flex flex-col">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[3px]">Real-time Preview</span>
-                <div class="flex items-center gap-2">
-                    <span class="text-[9px] font-bold text-gray-400 uppercase">Test Dark Mode:</span>
-                    <button onclick="toggleDarkPreview()" id="preview-toggle" class="w-10 h-5 bg-gray-300 rounded-full relative transition-colors">
-                        <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform shadow-sm" id="toggle-dot"></div>
-                    </button>
-                </div>
-            </div>
-            
-            <div id="preview-canvas" class="bg-white border-2 border-dashed border-gray-200 rounded-3xl p-4 md:p-12 flex items-center justify-center min-h-[400px] transition-colors">
-                <div id="signature-preview" class="shadow-2xl"></div>
-            </div>
+<input id="input-name" class="w-full border p-2 rounded" placeholder="Full Name">
+<input id="input-title" class="w-full border p-2 rounded" placeholder="Job Title">
+<input id="input-email" class="w-full border p-2 rounded" placeholder="Email">
+<input id="input-phone" class="w-full border p-2 rounded" placeholder="Phone">
 
-            <div class="mt-8 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm" id="info-box">
-                <h3 class="text-xs font-black uppercase tracking-widest text-deep mb-3" id="info-title">Improvised Tech Layout</h3>
-                <p class="text-xs text-gray-500 leading-relaxed">
-                    This version uses <strong class="text-deep">#FCFCFC</strong> (Off-White) for the main body. Pure white often forces muddy grey inversions on mobile; this specific hex code is "Dark Mode Resilient." We've also included a <strong>vertical brand stripe</strong> and a dark footer for a professional tech-suite feel.
-                </p>
-            </div>
-        </div>
-    </div>
+<!-- IMAGE UPLOAD -->
+<div>
+<label class="text-xs font-bold text-slate-400">Upload Profile Image</label>
+<input type="file" id="upload-image" accept="image/*" class="w-full border p-2 rounded">
+</div>
 
-    <script>
-        let isDarkPreview = false;
-        let isDarkModeUI = false;
+<!-- OPTIONAL URL -->
+<input id="input-imageUrl" class="w-full border p-2 rounded" placeholder="(Optional) Image URL">
 
-        function update() {
-            const name = document.getElementById('name').value || 'Name';
-            const role = document.getElementById('role').value || 'Title';
-            const email = document.getElementById('email').value || 'email@simplify.io';
-            const phone = document.getElementById('phone').value || 'Phone';
+<input id="input-logoUrl" class="w-full border p-2 rounded" placeholder="Logo URL">
 
-            // OFF-WHITE: #FCFCFC prevents hard inversion
-            const html = `
-<table cellpadding="0" cellspacing="0" border="0" style="width: 560px; font-family: Arial, Helvetica, sans-serif; border-collapse: collapse; background-color: #FCFCFC; border: 1px solid #EAEAEA;">
-    <tbody>
-        <!-- Accent Top Bar -->
-        <tr><td height="3" style="background: linear-gradient(90deg, #5B2FE6 0%, #7B2FBE 50%, #6BC910 100%); line-height: 0; font-size: 0;">&nbsp;</td></tr>
-        
-        <tr>
-            <td style="padding: 0; background-color: #FCFCFC;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                    <tr>
-                        <!-- Vertical Accent Stripe -->
-                        <td width="4" style="background-color: #6BC910; font-size: 0; line-height: 0;">&nbsp;</td>
-                        
-                        <!-- Logo Section -->
-                        <td width="150" valign="middle" style="padding: 24px; text-align: center; border-right: 1px solid #EEEEEE;">
-                            <img src="https://raw.githubusercontent.com/lohithlalesh/signature-/main/simplify-logo.png" alt="Simplify" width="115" style="display: block; width: 115px; height: auto; margin: 0 auto; filter: drop-shadow(0.5px 0.5px 0px white);">
-                        </td>
-                        
-                        <!-- Info Section -->
-                        <td valign="middle" style="padding: 24px 30px;">
-                            <table cellpadding="0" cellspacing="0" border="0">
-                                <tr><td style="font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; color: #1A0A2E; line-height: 1.2;">${name}</td></tr>
-                                <tr><td style="font-family: Arial, sans-serif; font-size: 10px; font-weight: bold; color: #5B2FE6; text-transform: uppercase; letter-spacing: 2px; padding-bottom: 12px; padding-top: 2px;">${role}</td></tr>
-                                <!-- DIVIDER REMOVED HERE -->
-                                <tr>
-                                    <td>
-                                        <table cellpadding="0" cellspacing="0" border="0">
-                                            <tr>
-                                                <td style="padding-bottom: 5px;">
-                                                    <span style="font-size: 12px; color: #666666; text-decoration: none;">
-                                                        <strong style="color: #6BC910; margin-right: 6px;">&bull;</strong> ${email}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <span style="font-size: 12px; color: #666666;">
-                                                        <strong style="color: #6BC910; margin-right: 6px;">&bull;</strong> ${phone}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        
-        <!-- Dark Footer Anchor -->
-        <tr>
-            <td style="background-color: #1A0A2E; padding: 12px 24px;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                    <tr>
-                        <td style="font-family: Arial, sans-serif; font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px;">
-                            Less software. More business.
-                        </td>
-                        <td style="text-align: right;">
-                            <a href="https://simplifysuite.io" style="font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; color: #6BC910; text-decoration: none; letter-spacing: 1px;">SIMPLIFYSUITE.IO</a>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </tbody>
-</table>`.trim();
+<input id="input-bookingText" class="w-full border p-2 rounded" placeholder="Button Text">
+<input id="input-bookingLink" class="w-full border p-2 rounded" placeholder="Booking Link">
 
-            document.getElementById('signature-preview').innerHTML = html;
-        }
+<input id="input-slogan" class="w-full border p-2 rounded" placeholder="Slogan">
+<input id="input-website" class="w-full border p-2 rounded" placeholder="Website">
 
-        function toggleDarkPreview() {
-            isDarkPreview = !isDarkPreview;
-            const canvas = document.getElementById('preview-canvas');
-            const toggle = document.getElementById('preview-toggle');
-            const dot = document.getElementById('toggle-dot');
-            
-            if (isDarkPreview) {
-                canvas.classList.add('dark-preview');
-                toggle.classList.add('bg-lime');
-                dot.style.transform = 'translateX(20px)';
-            } else {
-                canvas.classList.remove('dark-preview');
-                toggle.classList.remove('bg-lime');
-                dot.style.transform = 'translateX(0px)';
-            }
-        }
+<button id="copy-btn" class="w-full bg-purple-600 text-white py-3 rounded">
+Copy Signature
+</button>
 
-        function toggleDarkModeUI() {
-            isDarkModeUI = !isDarkModeUI;
-            const body = document.getElementById('body-wrapper');
-            const controls = document.getElementById('controls-panel');
-            const info = document.getElementById('info-box');
-            const infoTitle = document.getElementById('info-title');
+</div>
 
-            if (isDarkModeUI) {
-                body.classList.add('dark-mode-ui');
-                controls.style.backgroundColor = '#1e293b';
-                controls.style.borderColor = '#334155';
-                info.style.backgroundColor = '#1e293b';
-                info.style.borderColor = '#334155';
-                infoTitle.style.color = '#ffffff';
-            } else {
-                body.classList.remove('dark-mode-ui');
-                controls.style.backgroundColor = 'white';
-                controls.style.borderColor = '#e5e7eb';
-                info.style.backgroundColor = 'white';
-                info.style.borderColor = '#f3f4f6';
-                infoTitle.style.color = '#1A0A2E';
-            }
-        }
+<!-- PREVIEW -->
+<div class="bg-white p-6 rounded-xl border">
 
-        function copySignature() {
-            const preview = document.getElementById('signature-preview');
-            const range = document.createRange();
-            range.selectNodeContents(preview);
-            const sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(range);
-            try {
-                document.execCommand('copy');
-                const toast = document.getElementById('toast');
-                toast.style.opacity = '1';
-                setTimeout(() => toast.style.opacity = '0', 2000);
-            } catch (err) { console.error(err); }
-            sel.removeAllRanges();
-        }
+<table id="signature-preview" cellpadding="0" cellspacing="0" style="width:500px; border-top:4px solid #6332f1;">
+<tr>
 
-        window.onload = update;
-    </script>
+<td style="padding:20px;">
+<table width="100%">
+
+<tr>
+
+<!-- IMAGE -->
+<td style="width:100px;">
+<img id="preview-imageUrl" width="100" height="100"
+style="border-radius:50%; object-fit:cover;">
+</td>
+
+<!-- TEXT -->
+<td>
+<div id="preview-name" style="font-weight:800; font-size:18px;"></div>
+<div id="preview-title" style="color:#6332f1; font-size:12px;"></div>
+<div id="preview-email"></div>
+<div id="preview-phone"></div>
+</td>
+
+<!-- LOGO -->
+<td style="text-align:right;">
+<img id="preview-logoUrl" width="120">
+<br><br>
+<a id="preview-booking-btn" style="background:#7cc124;color:#fff;padding:6px 10px;text-decoration:none;font-size:11px;"></a>
+</td>
+
+</tr>
+
+</table>
+</td>
+
+</tr>
+
+<tr>
+<td style="background:#1a0b2e;color:white;padding:10px;font-size:10px;">
+<span id="preview-slogan"></span>
+<span style="float:right;" id="preview-website"></span>
+</td>
+</tr>
+
+</table>
+
+</div>
+</div>
+
+<script>
+const fields = ["name","title","email","phone","imageUrl","logoUrl","bookingText","bookingLink","slogan","website"];
+
+let base64Image = "";
+
+// UPDATE PREVIEW
+function updatePreview() {
+    const data = {};
+    fields.forEach(f => {
+        const el = document.getElementById("input-" + f);
+        data[f] = el ? el.value : "";
+    });
+
+    document.getElementById("preview-name").textContent = data.name;
+    document.getElementById("preview-title").textContent = data.title;
+    document.getElementById("preview-email").textContent = data.email;
+    document.getElementById("preview-phone").textContent = data.phone;
+    document.getElementById("preview-slogan").textContent = data.slogan;
+    document.getElementById("preview-website").textContent = data.website;
+
+    const img = document.getElementById("preview-imageUrl");
+
+    if (base64Image) {
+        img.src = base64Image;
+    } else if (data.imageUrl) {
+        img.src = data.imageUrl;
+    }
+
+    document.getElementById("preview-logoUrl").src = data.logoUrl;
+
+    const btn = document.getElementById("preview-booking-btn");
+    btn.href = data.bookingLink;
+    btn.textContent = data.bookingText || "BOOK A CALL";
+}
+
+// INPUT LISTENERS
+fields.forEach(f => {
+    const el = document.getElementById("input-" + f);
+    if (el) el.addEventListener("input", updatePreview);
+});
+
+// IMAGE UPLOAD → BASE64
+document.getElementById("upload-image").addEventListener("change", function(e){
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+        base64Image = event.target.result;
+        document.getElementById("preview-imageUrl").src = base64Image;
+    };
+
+    reader.readAsDataURL(file);
+});
+
+// COPY FUNCTION
+document.getElementById("copy-btn").addEventListener("click", function () {
+
+    const sig = document.getElementById("signature-preview");
+    const range = document.createRange();
+    range.selectNode(sig);
+
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    try {
+        document.execCommand("copy");
+        alert("Copied! Paste into Gmail signature ✅");
+    } catch (e) {
+        alert("Copy failed");
+    }
+
+    selection.removeAllRanges();
+});
+
+// INIT
+updatePreview();
+</script>
+
 </body>
 </html>
