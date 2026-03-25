@@ -1,189 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simplify — Signature Generator</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<table id="signature-preview" cellpadding="0" cellspacing="0" style="width:520px; border-top:4px solid #6332f1; font-family:Arial, sans-serif;">
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
-
-body { font-family: 'Montserrat', sans-serif; }
-
-.input-focus:focus {
-    border-color: #6332f1;
-    box-shadow: 0 0 0 2px rgba(99, 50, 241, 0.1);
-}
-</style>
-</head>
-
-<body class="bg-slate-50 text-slate-900 min-h-screen p-6">
-
-<div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
-
-<!-- INPUT PANEL -->
-<div class="bg-white p-6 rounded-xl border space-y-4">
-
-<input id="input-name" class="w-full border p-2 rounded" placeholder="Full Name">
-<input id="input-title" class="w-full border p-2 rounded" placeholder="Job Title">
-<input id="input-email" class="w-full border p-2 rounded" placeholder="Email">
-<input id="input-phone" class="w-full border p-2 rounded" placeholder="Phone">
-
-<!-- IMAGE UPLOAD -->
-<div>
-<label class="text-xs font-bold text-slate-400">Upload Profile Image</label>
-<input type="file" id="upload-image" accept="image/*" class="w-full border p-2 rounded">
-</div>
-
-<!-- OPTIONAL URL -->
-<input id="input-imageUrl" class="w-full border p-2 rounded" placeholder="(Optional) Image URL">
-
-<input id="input-logoUrl" class="w-full border p-2 rounded" placeholder="Logo URL">
-
-<input id="input-bookingText" class="w-full border p-2 rounded" placeholder="Button Text">
-<input id="input-bookingLink" class="w-full border p-2 rounded" placeholder="Booking Link">
-
-<input id="input-slogan" class="w-full border p-2 rounded" placeholder="Slogan">
-<input id="input-website" class="w-full border p-2 rounded" placeholder="Website">
-
-<button id="copy-btn" class="w-full bg-purple-600 text-white py-3 rounded">
-Copy Signature
-</button>
-
-</div>
-
-<!-- PREVIEW -->
-<div class="bg-white p-6 rounded-xl border">
-
-<table id="signature-preview" cellpadding="0" cellspacing="0" style="width:500px; border-top:4px solid #6332f1;">
 <tr>
+<td style="padding:24px;">
 
-<td style="padding:20px;">
 <table width="100%">
 
 <tr>
 
-<!-- IMAGE -->
-<td style="width:100px;">
-<img id="preview-imageUrl" width="100" height="100"
-style="border-radius:50%; object-fit:cover;">
+<!-- PROFILE IMAGE -->
+<td style="width:100px; vertical-align:top;">
+    <img id="preview-imageUrl"
+    width="90" height="90"
+    style="width:90px; height:90px; border-radius:50%; display:block; object-fit:cover;">
 </td>
+
+<!-- SPACING -->
+<td style="width:24px;"></td>
 
 <!-- TEXT -->
-<td>
-<div id="preview-name" style="font-weight:800; font-size:18px;"></div>
-<div id="preview-title" style="color:#6332f1; font-size:12px;"></div>
-<div id="preview-email"></div>
-<div id="preview-phone"></div>
+<td style="vertical-align:top;">
+
+<div id="preview-name" style="font-size:18px; font-weight:800; color:#0a0a2e;"></div>
+
+<div id="preview-title" style="color:#6332f1; font-size:12px; margin-bottom:8px;"></div>
+
+<div id="preview-email" style="font-size:13px; color:#555;"></div>
+
+<div id="preview-phone" style="font-size:13px; color:#555;"></div>
+
 </td>
+
+<!-- RIGHT SIDE -->
+<td style="text-align:right; vertical-align:top; width:150px;">
 
 <!-- LOGO -->
-<td style="text-align:right;">
-<img id="preview-logoUrl" width="120">
-<br><br>
-<a id="preview-booking-btn" style="background:#7cc124;color:#fff;padding:6px 10px;text-decoration:none;font-size:11px;"></a>
+<img src="https://simplifysuite.io/images/simplify-logo.webp"
+width="120" style="display:block; margin-left:auto; margin-bottom:12px;">
+
+<!-- BUTTON -->
+<a id="preview-booking-btn"
+href="#"
+style="display:inline-block;
+background:#6332f1;
+color:#ffffff;
+padding:10px 18px;
+font-size:11px;
+font-weight:700;
+text-decoration:none;
+border-radius:6px;
+letter-spacing:0.5px;">
+BOOK A CALL
+</a>
+
 </td>
 
 </tr>
 
 </table>
-</td>
 
+</td>
 </tr>
 
+<!-- FOOTER -->
 <tr>
-<td style="background:#1a0b2e;color:white;padding:10px;font-size:10px;">
-<span id="preview-slogan"></span>
-<span style="float:right;" id="preview-website"></span>
+<td style="background:#1a0b2e; padding:12px 24px; font-size:10px; font-weight:600; letter-spacing:0.5px;">
+
+<table width="100%">
+<tr>
+
+<td style="color:#ffffff;">
+Less Software More Business
+</td>
+
+<td style="text-align:right; color:#7cc124;">
+simplifysuite.io
+</td>
+
+</tr>
+</table>
+
 </td>
 </tr>
 
 </table>
-
-</div>
-</div>
-
-<script>
-const fields = ["name","title","email","phone","imageUrl","logoUrl","bookingText","bookingLink","slogan","website"];
-
-let base64Image = "";
-
-// UPDATE PREVIEW
-function updatePreview() {
-    const data = {};
-    fields.forEach(f => {
-        const el = document.getElementById("input-" + f);
-        data[f] = el ? el.value : "";
-    });
-
-    document.getElementById("preview-name").textContent = data.name;
-    document.getElementById("preview-title").textContent = data.title;
-    document.getElementById("preview-email").textContent = data.email;
-    document.getElementById("preview-phone").textContent = data.phone;
-    document.getElementById("preview-slogan").textContent = data.slogan;
-    document.getElementById("preview-website").textContent = data.website;
-
-    const img = document.getElementById("preview-imageUrl");
-
-    if (base64Image) {
-        img.src = base64Image;
-    } else if (data.imageUrl) {
-        img.src = data.imageUrl;
-    }
-
-    document.getElementById("preview-logoUrl").src = data.logoUrl;
-
-    const btn = document.getElementById("preview-booking-btn");
-    btn.href = data.bookingLink;
-    btn.textContent = data.bookingText || "BOOK A CALL";
-}
-
-// INPUT LISTENERS
-fields.forEach(f => {
-    const el = document.getElementById("input-" + f);
-    if (el) el.addEventListener("input", updatePreview);
-});
-
-// IMAGE UPLOAD → BASE64
-document.getElementById("upload-image").addEventListener("change", function(e){
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(event){
-        base64Image = event.target.result;
-        document.getElementById("preview-imageUrl").src = base64Image;
-    };
-
-    reader.readAsDataURL(file);
-});
-
-// COPY FUNCTION
-document.getElementById("copy-btn").addEventListener("click", function () {
-
-    const sig = document.getElementById("signature-preview");
-    const range = document.createRange();
-    range.selectNode(sig);
-
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-
-    try {
-        document.execCommand("copy");
-        alert("Copied! Paste into Gmail signature ✅");
-    } catch (e) {
-        alert("Copy failed");
-    }
-
-    selection.removeAllRanges();
-});
-
-// INIT
-updatePreview();
-</script>
-
-</body>
-</html>
