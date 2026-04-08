@@ -199,20 +199,17 @@ body { font-family: 'Montserrat', sans-serif; }
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────
-// If you want to hardcode your ImgBB key instead of letting
-// users paste it, replace "" below with your key.
-const HARDCODED_IMGBB_KEY = "e9edac19142a70ad4d16bacd0619d2a0";
+const CLOUDINARY_CLOUD_NAME = "dorwvs0bb";
+const CLOUDINARY_UPLOAD_PRESET = "emaildp";
 // ─────────────────────────────────────────────────────────
 
 const textFields = ["name","title","email","phone","bookingText","bookingLink"];
 let hostedImageUrl = ""; // URL returned by ImgBB after upload
 let cropper = null;
 
-// Pre-fill API key field if hardcoded
-if (HARDCODED_IMGBB_KEY) {
-  document.getElementById("imgbb-api-key").value = HARDCODED_IMGBB_KEY;
-  document.getElementById("imgbb-api-key").closest(".bg-purple-50").style.display = "none";
-}
+// Hide API key section (Cloudinary uses cloud name + preset, no key input needed)
+const apiKeySection = document.getElementById("imgbb-api-key");
+if (apiKeySection) apiKeySection.closest(".bg-purple-50").style.display = "none";
 
 // ── UPDATE PREVIEW ────────────────────────────────────────
 function updatePreview() {
@@ -242,10 +239,8 @@ document.getElementById("upload-image").addEventListener("change", function(e) {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Check API key
-  const apiKey = (document.getElementById("imgbb-api-key").value || HARDCODED_IMGBB_KEY).trim();
-  if (!apiKey) {
-    showCropError("Please enter your ImgBB API key first.");
+  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+    showCropError("Cloudinary is not configured yet. Please contact the site admin.");
     this.value = "";
     return;
   }
@@ -291,15 +286,9 @@ document.getElementById("crop-cancel-btn").addEventListener("click", function() 
   closeCropModal();
 });
 
-// ── CONFIRM CROP → UPLOAD TO IMGBB ───────────────────────
+// ── CONFIRM CROP → UPLOAD TO CLOUDINARY ──────────────────
 document.getElementById("crop-confirm-btn").addEventListener("click", async function() {
   if (!cropper) return;
-
-  const apiKey = (document.getElementById("imgbb-api-key").value || HARDCODED_IMGBB_KEY).trim();
-  if (!apiKey) {
-    showCropError("ImgBB API key is missing.");
-    return;
-  }
 
   // Get cropped canvas (300×300 px)
   const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
@@ -309,24 +298,20 @@ document.getElementById("crop-confirm-btn").addEventListener("click", async func
 
   canvas.toBlob(async function(blob) {
     try {
-      // Convert blob to base64 (without data: prefix)
-      const base64 = await blobToBase64(blob);
-      const base64Data = base64.split(",")[1];
-
-      // Upload to ImgBB
+      // Upload to Cloudinary via unsigned preset
       const formData = new FormData();
-      formData.append("key", apiKey);
-      formData.append("image", base64Data);
+      formData.append("file", blob);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-      const res = await fetch("https://api.imgbb.com/1/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
 
       const json = await res.json();
 
-      if (json.success) {
-        hostedImageUrl = json.data.display_url;
+      if (json.secure_url) {
+        hostedImageUrl = json.secure_url;
 
         // Update preview
         document.getElementById("preview-photo").src = hostedImageUrl;
@@ -342,8 +327,8 @@ document.getElementById("crop-confirm-btn").addEventListener("click", async func
         closeCropModal();
         updatePreview();
       } else {
-        const msg = json.error?.message || "Upload failed. Check your API key.";
-        showCropError("ImgBB error: " + msg);
+        const msg = json.error?.message || "Upload failed. Check your Cloudinary config.";
+        showCropError("Cloudinary error: " + msg);
       }
 
     } catch (err) {
