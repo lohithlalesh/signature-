@@ -5,242 +5,408 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simplify — Signature Generator</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 body { font-family: 'Montserrat', sans-serif; }
+
+/* Circular crop overlay */
+.cropper-view-box,
+.cropper-face {
+  border-radius: 50%;
+}
+.cropper-view-box {
+  box-shadow: 0 0 0 1px #6332f1;
+  outline: 0;
+}
+
+/* Modal backdrop */
+#crop-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+#crop-modal.active {
+  display: flex;
+}
+#crop-container {
+  max-height: 400px;
+  max-width: 100%;
+  overflow: hidden;
+}
+#crop-container img {
+  max-width: 100%;
+  display: block;
+}
 </style>
 </head>
 
 <body class="bg-slate-50 text-slate-900 min-h-screen p-6">
+
+<!-- CROP MODAL -->
+<div id="crop-modal">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4">
+    <h2 class="text-lg font-bold text-slate-800 mb-1">Crop Your Photo</h2>
+    <p class="text-xs text-slate-400 mb-4">Drag to reposition · Scroll to zoom · Circle area will be used</p>
+    <div id="crop-container">
+      <img id="crop-image" src="" alt="crop">
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button id="crop-cancel-btn"
+        class="flex-1 border border-slate-200 text-slate-600 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50">
+        Cancel
+      </button>
+      <button id="crop-confirm-btn"
+        class="flex-1 bg-purple-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 flex items-center justify-center gap-2">
+        <span id="crop-btn-label">Crop &amp; Upload Photo</span>
+        <svg id="crop-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+      </button>
+    </div>
+    <p id="crop-error" class="text-xs text-red-500 mt-2 hidden"></p>
+  </div>
+</div>
 
 <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
 
 <!-- INPUT PANEL -->
 <div class="bg-white p-6 rounded-xl border space-y-4">
 
-<input id="input-name" class="w-full border p-2 rounded" placeholder="Full Name">
-<input id="input-title" class="w-full border p-2 rounded" placeholder="Job Title">
-<input id="input-email" class="w-full border p-2 rounded" placeholder="Email">
-<input id="input-phone" class="w-full border p-2 rounded" placeholder="Phone">
+  <!-- ImgBB API Key -->
+  <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+    <label class="text-xs font-bold text-purple-700">ImgBB API Key
+      <a href="https://api.imgbb.com/" target="_blank" class="underline font-normal ml-1">Get a free key ↗</a>
+    </label>
+    <input id="imgbb-api-key" class="w-full border border-purple-200 bg-white p-2 rounded mt-1 text-sm"
+      placeholder="Paste your ImgBB API key here">
+    <p class="text-xs text-purple-500 mt-1">Required to upload photos. Your key stays in your browser only.</p>
+  </div>
 
-<div>
-<label class="text-xs font-bold text-slate-400">Upload Profile Image</label>
-<input type="file" id="upload-image" accept="image/*" class="w-full border p-2 rounded">
-</div>
+  <input id="input-name" class="w-full border p-2 rounded" placeholder="Full Name">
+  <input id="input-title" class="w-full border p-2 rounded" placeholder="Job Title">
+  <input id="input-email" class="w-full border p-2 rounded" placeholder="Email">
+  <input id="input-phone" class="w-full border p-2 rounded" placeholder="Phone">
 
-<input id="input-imageUrl" class="w-full border p-2 rounded" placeholder="(Optional) Image URL">
+  <!-- Photo Upload -->
+  <div>
+    <label class="text-xs font-bold text-slate-500 block mb-1">Profile Photo</label>
+    <div class="flex items-center gap-3">
+      <div id="photo-preview-thumb"
+        class="w-14 h-14 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
+        <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <label for="upload-image"
+          class="cursor-pointer inline-block w-full text-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold py-2 px-4 rounded-lg transition">
+          Choose Photo
+        </label>
+        <input type="file" id="upload-image" accept="image/*" class="hidden">
+        <p id="upload-status" class="text-xs text-slate-400 mt-1 text-center">JPG, PNG, WEBP supported</p>
+      </div>
+    </div>
+  </div>
 
-<input id="input-bookingText" class="w-full border p-2 rounded" placeholder="Button Text">
-<input id="input-bookingLink" class="w-full border p-2 rounded" placeholder="Booking Link">
+  <input id="input-bookingText" class="w-full border p-2 rounded" placeholder="Button Text (e.g. Book a Call)">
+  <input id="input-bookingLink" class="w-full border p-2 rounded" placeholder="Booking Link">
 
-<button id="copy-btn" class="w-full bg-purple-600 text-white py-3 rounded">
-Copy Signature
-</button>
+  <button id="copy-btn" class="w-full bg-purple-600 text-white py-3 rounded font-semibold hover:bg-purple-700">
+    Copy Signature
+  </button>
 
 </div>
 
 <!-- PREVIEW -->
 <div class="bg-white p-6 rounded-xl border">
 
-<table id="signature-preview" cellpadding="0" cellspacing="0"
-style="width:520px; border-top:4px solid #6332f1; font-family:Arial, sans-serif;">
+  <table id="signature-preview" cellpadding="0" cellspacing="0"
+    style="width:520px; border-top:4px solid #6332f1; font-family:Arial, sans-serif;">
 
-<tr>
-<td style="padding:24px;">
+    <tr>
+    <td style="padding:24px;">
+      <table width="100%">
+      <tr>
 
-<table width="100%">
-<tr>
+        <!-- IMAGE -->
+        <td style="width:90px; min-width:90px; max-width:90px; vertical-align:top;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:90px; height:90px;">
+            <tr>
+              <td style="width:90px; height:90px; border-radius:50%; overflow:hidden;">
+                <img id="preview-photo"
+                  width="90" height="90"
+                  style="display:block; width:90px; height:90px; min-width:90px; min-height:90px; object-fit:cover; border-radius:50%;">
+              </td>
+            </tr>
+          </table>
+        </td>
 
-<!-- IMAGE -->
-<td style="width:90px; min-width:90px; max-width:90px; vertical-align:top;">
-    
-    <table cellpadding="0" cellspacing="0" border="0" style="width:90px; height:90px;">
-        <tr>
-            <td style="width:90px; height:90px; border-radius:50%; overflow:hidden;">
-                
-                <img id="preview-imageUrl"
-                width="90" height="90"
-                style="display:block; width:90px; height:90px; min-width:90px; min-height:90px; object-fit:cover; border-radius:50%;">
+        <!-- SPACING -->
+        <td style="width:24px;"></td>
 
-            </td>
-        </tr>
-    </table>
+        <!-- TEXT -->
+        <td style="vertical-align:top;">
+          <div id="preview-name" style="font-size:18px; font-weight:800; color:#0a0a2e;"></div>
+          <div id="preview-title" style="color:#6332f1; font-size:12px; margin-bottom:8px;"></div>
+          <div id="preview-email" style="font-size:13px; color:#555;"></div>
+          <div id="preview-phone" style="font-size:13px; color:#555;"></div>
+        </td>
 
-</td>
-<!-- SPACING -->
-<td style="width:24px;"></td>
+        <!-- RIGHT SIDE -->
+        <td style="text-align:right; vertical-align:top; width:150px;">
+          <!-- LOGO -->
+          <img src="https://raw.githubusercontent.com/lohithlalesh/signature-/main/simplify-logo.png"
+            width="120"
+            style="display:block; margin-left:auto; margin-bottom:12px;">
+          <!-- CTA -->
+          <a id="preview-booking-btn" href="#"
+            style="display:inline-block; background:#7cc124; color:#ffffff; padding:10px 18px;
+            font-size:11px; font-weight:700; text-decoration:none; border-radius:6px; letter-spacing:0.5px;">
+            BOOK A CALL
+          </a>
+        </td>
 
-<!-- TEXT -->
-<td style="vertical-align:top;">
-<div id="preview-name" style="font-size:18px; font-weight:800; color:#0a0a2e;"></div>
-<div id="preview-title" style="color:#6332f1; font-size:12px; margin-bottom:8px;"></div>
-<div id="preview-email" style="font-size:13px; color:#555;"></div>
-<div id="preview-phone" style="font-size:13px; color:#555;"></div>
-</td>
+      </tr>
+      </table>
+    </td>
+    </tr>
 
-<!-- RIGHT SIDE -->
-<td style="text-align:right; vertical-align:top; width:150px;">
+    <!-- FOOTER -->
+    <tr>
+    <td style="background:#1a0b2e; padding:12px 24px; font-size:10px; font-weight:600;">
+      <table width="100%">
+      <tr>
+        <td style="color:#ffffff;">Less Software More Business</td>
+        <td style="text-align:right; color:#7cc124;">simplifysuite.io</td>
+      </tr>
+      </table>
+    </td>
+    </tr>
 
-<!-- LOGO (LOCKED) -->
-<img src="simplify-logo.png"
-width="120"
-style="display:block; margin-left:auto; margin-bottom:12px;">
-
-<!-- CTA -->
-<a id="preview-booking-btn"
-href="#"
-style="display:inline-block;
-background:#7cc124;
-color:#ffffff;
-padding:10px 18px;
-font-size:11px;
-font-weight:700;
-text-decoration:none;
-border-radius:6px;
-letter-spacing:0.5px;">
-BOOK A CALL
-</a>
-
-</td>
-
-</tr>
-</table>
-
-</td>
-</tr>
-
-<!-- FOOTER -->
-<tr>
-<td style="background:#1a0b2e; padding:12px 24px; font-size:10px; font-weight:600;">
-
-<table width="100%">
-<tr>
-
-<td style="color:#ffffff;">
-Less Software More Business
-</td>
-
-<td style="text-align:right; color:#7cc124;">
-simplifysuite.io
-</td>
-
-</tr>
-</table>
-
-</td>
-</tr>
-
-</table>
+  </table>
 
 </div>
 </div>
 
 <script>
-const fields = ["name","title","email","phone","imageUrl","bookingText","bookingLink"];
+// ─── CONFIG ──────────────────────────────────────────────
+// If you want to hardcode your ImgBB key instead of letting
+// users paste it, replace "" below with your key.
+const HARDCODED_IMGBB_KEY = "e9edac19142a70ad4d16bacd0619d2a0";
+// ─────────────────────────────────────────────────────────
 
-let base64Image = "";
+const textFields = ["name","title","email","phone","bookingText","bookingLink"];
+let hostedImageUrl = ""; // URL returned by ImgBB after upload
+let cropper = null;
 
-// UPDATE PREVIEW
-function updatePreview() {
-    const data = {};
-    fields.forEach(f => {
-        const el = document.getElementById("input-" + f);
-        data[f] = el ? el.value : "";
-    });
-
-    document.getElementById("preview-name").textContent = data.name;
-    document.getElementById("preview-title").textContent = data.title;
-    document.getElementById("preview-email").textContent = data.email;
-    document.getElementById("preview-phone").textContent = data.phone;
-
-    const img = document.getElementById("preview-imageUrl");
-
-    if (data.imageUrl) {
-        base64Image = "";
-        img.src = data.imageUrl;
-    } else if (base64Image) {
-        img.src = base64Image;
-    }
-
-    const btn = document.getElementById("preview-booking-btn");
-    btn.href = data.bookingLink || "#";
-    btn.textContent = data.bookingText || "BOOK A CALL";
+// Pre-fill API key field if hardcoded
+if (HARDCODED_IMGBB_KEY) {
+  document.getElementById("imgbb-api-key").value = HARDCODED_IMGBB_KEY;
+  document.getElementById("imgbb-api-key").closest(".bg-purple-50").style.display = "none";
 }
 
-// INPUT LISTENERS
-fields.forEach(f => {
-    const el = document.getElementById("input-" + f);
-    if (el) el.addEventListener("input", updatePreview);
+// ── UPDATE PREVIEW ────────────────────────────────────────
+function updatePreview() {
+  const get = id => (document.getElementById(id) || {}).value || "";
+
+  document.getElementById("preview-name").textContent  = get("input-name");
+  document.getElementById("preview-title").textContent = get("input-title");
+  document.getElementById("preview-email").textContent = get("input-email");
+  document.getElementById("preview-phone").textContent = get("input-phone");
+
+  if (hostedImageUrl) {
+    document.getElementById("preview-photo").src = hostedImageUrl;
+  }
+
+  const btn = document.getElementById("preview-booking-btn");
+  btn.href      = get("input-bookingLink") || "#";
+  btn.textContent = get("input-bookingText") || "BOOK A CALL";
+}
+
+textFields.forEach(f => {
+  const el = document.getElementById("input-" + f);
+  if (el) el.addEventListener("input", updatePreview);
 });
 
-// IMAGE UPLOAD → BASE64
-document.getElementById("upload-image").addEventListener("change", function(e){
-    const file = e.target.files[0];
-    if (!file) return;
+// ── FILE CHOSEN → OPEN CROP MODAL ─────────────────────────
+document.getElementById("upload-image").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const img = new Image();
-    const reader = new FileReader();
+  // Check API key
+  const apiKey = (document.getElementById("imgbb-api-key").value || HARDCODED_IMGBB_KEY).trim();
+  if (!apiKey) {
+    showCropError("Please enter your ImgBB API key first.");
+    this.value = "";
+    return;
+  }
 
-    reader.onload = function(event) {
-        img.src = event.target.result;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const modal = document.getElementById("crop-modal");
+    const cropImg = document.getElementById("crop-image");
+
+    // Destroy old cropper if exists
+    if (cropper) { cropper.destroy(); cropper = null; }
+
+    cropImg.src = ev.target.result;
+    modal.classList.add("active");
+
+    // Init Cropper.js after image loads
+    cropImg.onload = function() {
+      cropper = new Cropper(cropImg, {
+        aspectRatio: 1,
+        viewMode: 1,
+        dragMode: "move",
+        autoCropArea: 0.9,
+        responsive: true,
+        background: false,
+        movable: true,
+        rotatable: false,
+        scalable: false,
+        zoomable: true,
+        guides: false,
+        center: false,
+        highlight: false,
+        cropBoxMovable: false,
+        cropBoxResizable: false,
+      });
     };
+  };
+  reader.readAsDataURL(file);
+  this.value = ""; // reset so same file can be re-chosen
+});
 
-    img.onload = function() {
-        const canvas = document.createElement("canvas");
-        const MAX_SIZE = 120; // 🔥 key: keep small for email
+// ── CANCEL CROP ───────────────────────────────────────────
+document.getElementById("crop-cancel-btn").addEventListener("click", function() {
+  closeCropModal();
+});
 
-        let width = img.width;
-        let height = img.height;
+// ── CONFIRM CROP → UPLOAD TO IMGBB ───────────────────────
+document.getElementById("crop-confirm-btn").addEventListener("click", async function() {
+  if (!cropper) return;
 
-        if (width > height) {
-            if (width > MAX_SIZE) {
-                height *= MAX_SIZE / width;
-                width = MAX_SIZE;
-            }
-        } else {
-            if (height > MAX_SIZE) {
-                width *= MAX_SIZE / height;
-                height = MAX_SIZE;
-            }
-        }
+  const apiKey = (document.getElementById("imgbb-api-key").value || HARDCODED_IMGBB_KEY).trim();
+  if (!apiKey) {
+    showCropError("ImgBB API key is missing.");
+    return;
+  }
 
-        canvas.width = width;
-        canvas.height = height;
+  // Get cropped canvas (300×300 px)
+  const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
 
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
+  // Show loading
+  setLoading(true);
 
-        // 🔥 compress quality (0.6 is sweet spot)
-        base64Image = canvas.toDataURL("image/jpeg", 0.6);
-
-        document.getElementById("preview-imageUrl").src = base64Image;
-    };
-
-    reader.readAsDataURL(file);
-});  
-// COPY
-document.getElementById("copy-btn").addEventListener("click", function () {
-
-    const sig = document.getElementById("signature-preview");
-    const range = document.createRange();
-    range.selectNode(sig);
-
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-
+  canvas.toBlob(async function(blob) {
     try {
-        document.execCommand("copy");
-        alert("Copied! Paste into Gmail signature ✅");
-    } catch (e) {
-        alert("Copy failed");
-    }
+      // Convert blob to base64 (without data: prefix)
+      const base64 = await blobToBase64(blob);
+      const base64Data = base64.split(",")[1];
 
-    selection.removeAllRanges();
+      // Upload to ImgBB
+      const formData = new FormData();
+      formData.append("key", apiKey);
+      formData.append("image", base64Data);
+
+      const res = await fetch("https://api.imgbb.com/1/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+
+      if (json.success) {
+        hostedImageUrl = json.data.display_url;
+
+        // Update preview
+        document.getElementById("preview-photo").src = hostedImageUrl;
+
+        // Update thumb in form
+        const thumb = document.getElementById("photo-preview-thumb");
+        thumb.innerHTML = `<img src="${hostedImageUrl}" class="w-full h-full object-cover rounded-full">`;
+
+        document.getElementById("upload-status").textContent = "✅ Photo uploaded successfully";
+        document.getElementById("upload-status").classList.remove("text-slate-400");
+        document.getElementById("upload-status").classList.add("text-green-600");
+
+        closeCropModal();
+        updatePreview();
+      } else {
+        const msg = json.error?.message || "Upload failed. Check your API key.";
+        showCropError("ImgBB error: " + msg);
+      }
+
+    } catch (err) {
+      showCropError("Upload failed: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, "image/jpeg", 0.9);
 });
 
-// INIT
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function closeCropModal() {
+  document.getElementById("crop-modal").classList.remove("active");
+  document.getElementById("crop-error").classList.add("hidden");
+  if (cropper) { cropper.destroy(); cropper = null; }
+}
+
+function showCropError(msg) {
+  const el = document.getElementById("crop-error");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+
+function setLoading(on) {
+  document.getElementById("crop-btn-label").textContent = on ? "Uploading…" : "Crop & Upload Photo";
+  document.getElementById("crop-spinner").classList.toggle("hidden", !on);
+  document.getElementById("crop-confirm-btn").disabled = on;
+}
+
+// ── COPY SIGNATURE ────────────────────────────────────────
+document.getElementById("copy-btn").addEventListener("click", function() {
+  if (!hostedImageUrl) {
+    alert("Please upload a profile photo first — it will be hosted automatically so it shows in email.");
+    return;
+  }
+
+  const sig = document.getElementById("signature-preview");
+  const range = document.createRange();
+  range.selectNode(sig);
+
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  try {
+    document.execCommand("copy");
+    alert("Copied! Paste into Gmail or Outlook signature ✅");
+  } catch (e) {
+    alert("Copy failed — try selecting the preview manually and copying.");
+  }
+
+  selection.removeAllRanges();
+});
+
+// ── INIT ──────────────────────────────────────────────────
 updatePreview();
 </script>
 
